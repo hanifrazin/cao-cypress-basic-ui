@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/hanifrazin/cao-cypress-basic-ui#readme",
   "devDependencies": {
+    "@faker-js/faker": "^9.8.0",
     "cypress": "^14.3.3",
     "cypress-xpath": "^2.0.1"
   }

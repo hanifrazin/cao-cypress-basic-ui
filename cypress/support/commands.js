@@ -23,3 +23,12 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+
+Cypress.Commands.add('login', () => {
+    cy.visit("/auth/login");
+    cy.xpath(`//input[@placeholder='Username']`).click().clear().type("Admin");
+    cy.xpath(`//input[@placeholder='Password']`).click().clear().type("admin123");
+    cy.xpath(`//button[@type='submit']`).click();
+    cy.url(`/dashboard/index`);
+    cy.xpath(`//a[@class="oxd-main-menu-item active"]/span[text()="Dashboard"]`).should('be.visible').and('contain','Dashboard')
+});
