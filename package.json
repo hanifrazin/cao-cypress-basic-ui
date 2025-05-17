@@ -1,0 +1,25 @@
+{
+  "name": "cao-cypress-basic-ui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hanifrazin/cao-cypress-basic-ui.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/hanifrazin/cao-cypress-basic-ui/issues"
+  },
+  "homepage": "https://github.com/hanifrazin/cao-cypress-basic-ui#readme",
+  "devDependencies": {
+    "cypress": "^14.3.3",
+    "cypress-xpath": "^2.0.1"
+  }
+}

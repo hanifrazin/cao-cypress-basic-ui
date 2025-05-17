@@ -1,0 +1,17 @@
+{
+    "validData": {
+        "username": "Admin",
+        "password": "admin123"
+    },
+    "invalidData": {
+        "username": "@min",
+        "password": "@min123456",
+        "errorMessage": "Invalid credentials"
+    },
+    "emptyData": {
+        "username": "",
+        "password": "",
+        "errorMessageUsername": "Required",
+        "errorMessagePassword": "Required"
+    }
+}
