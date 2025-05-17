@@ -1,17 +1,15 @@
 {
     "validData": {
         "username": "Admin",
-        "password": "admin123"
+        "password": "admin123",
+        "successResetPassword": "Reset Password link sent successfully"
     },
     "invalidData": {
         "username": "@min",
         "password": "@min123456",
-        "errorMessage": "Invalid credentials"
+        "errorLoginMessage": "Invalid credentials"
     },
     "emptyData": {
-        "username": "",
-        "password": "",
-        "errorMessageUsername": "Required",
-        "errorMessagePassword": "Required"
+        "errorLoginMessage": "Required"
     }
 }
