@@ -27,13 +27,13 @@ describe('Automation UI test e2e di Orange HRM',() => {
         cy.login();
     })
 
-    it.skip("1. Menambah Karyawan Baru", () => {
+    it("1. Menambah Karyawan Baru", () => {
         // Tambah Karyawan di menu PIM
         cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(2) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).click();
         cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-        cy.url(`/pim/viewEmployeeList`);
+        cy.url(`/pim/viewEmployeeList`).should('include','/pim/viewEmployeeList');
         cy.get('.orangehrm-header-container > .oxd-button').click();
-        cy.url(`/pim/addEmployee`);
+        cy.url(`/pim/addEmployee`).should('include','/pim/addEmployee');
         cy.get(`nav > ul > li.--visited`).should('be.visible');
         cy.xpath(`//input[@name="firstName"]`).click().clear().type(firstName);
         cy.xpath(`//input[@name="middleName"]`).click().clear().type(middleName);
@@ -46,9 +46,9 @@ describe('Automation UI test e2e di Orange HRM',() => {
         // Buat Akun untuk Karyawan di menu Admin
         cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(1) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).click();
         cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-        cy.url(`/admin/viewSystemUsers`);
+        cy.url(`/admin/viewSystemUsers`).should('include','/admin/viewSystemUsers');
         cy.get('.orangehrm-header-container > .oxd-button').click();
-        cy.url(`/pim/addEmployee`);
+        cy.url(`/admin/saveSystemUser`).should('include','/admin/saveSystemUser');
         cy.get(`nav > ul > li.--visited`).should('be.visible');
 
         cy.get(`:nth-child(1) > .oxd-input-group > :nth-child(2) > .oxd-select-wrapper > .oxd-select-text > .oxd-select-text--after > .oxd-icon`)
@@ -99,10 +99,10 @@ describe('Automation UI test e2e di Orange HRM',() => {
 
     it("2. Menambahkan jatah cuti untuk karyawan baru", () => {
         cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
-        cy.url(`/leave/viewLeaveList`);
+        cy.url(`/leave/viewLeaveList`).should('include','/leave/viewLeaveList');
         cy.get(`nav > ul > li:nth-of-type(3)`).click();
         cy.xpath(`//ul[@class="oxd-dropdown-menu"]/li[1]`).click();
-        cy.url(`/leave/viewLeaveList`);
+        cy.url(`/leave/addLeaveEntitlement`).should('include','/leave/addLeaveEntitlement');
     })
 
 })

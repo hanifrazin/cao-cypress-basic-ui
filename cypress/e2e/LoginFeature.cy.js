@@ -38,18 +38,18 @@ describe('Test Login Feature untuk web Orange HRM',() => {
         context('Forgot Password Feature', () => {
             beforeEach(() => {
                 cy.xpath(`//div[@class="orangehrm-login-forgot"]`).click();
-                cy.url("/auth/requestPasswordResetCode");
+                cy.url("/auth/requestPasswordResetCode").should('include','/auth/requestPasswordResetCode');
             });
 
             it("Success Reset Password dengan Username is not empty", () => {
-                cy.xpath(`//input[@name='username']`).click().clear().type(loginData.validData.username);
+                cy.xpath(`//input[@name="username"][@class="oxd-input oxd-input--active"]`).click().clear().type(loginData.validData.username);
                 cy.xpath(`//button[@type='submit']`).click();
-                cy.url(`/auth/sendPasswordReset`);
+                cy.url(`/auth/sendPasswordReset`).should('include','/auth/sendPasswordReset');
                 cy.xpath(`//h6[text()="Reset Password link sent successfully"]`).should('contain',loginData.validData.successResetPassword);
             });
 
             it("Failed Reset Password dengan Username is empty", () => {
-                cy.xpath(`//input[@name='username']`).click().clear();
+                cy.xpath(`//input[@name="username"][@class="oxd-input oxd-input--active"]`).click().clear();
                 cy.xpath(`//button[@type='submit']`).click();
                 cy.xpath(`//input[@class="oxd-input oxd-input--active oxd-input--error"][@name="username"]`).should('be.visible');
                 cy.get(`span.oxd-text.oxd-text--span.oxd-input-field-error-message.oxd-input-group__message`).should('be.visible');

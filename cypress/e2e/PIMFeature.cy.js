@@ -10,9 +10,9 @@ describe('Test PIM Feature untuk web Orange HRM',() => {
         cy.login();
         cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(2) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).should('contain','PIM').click();
         cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-        cy.url(`/pim/viewEmployeeList`);
+        cy.url(`/pim/viewEmployeeList`).should('include','/pim/viewEmployeeList');
         cy.get('.orangehrm-header-container > .oxd-button').click();
-        cy.url(`/pim/addEmployee`);
+        cy.url(`/pim/addEmployee`).should('include','/pim/addEmployee');
         // cy.xpath(`//h6[text()="PIM"]`).should('contain','PIM');
         cy.get(`nav > ul > li.--visited`).should('be.visible');
     })

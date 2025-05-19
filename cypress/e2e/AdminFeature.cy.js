@@ -30,9 +30,9 @@ describe('Test Admin Feature untuk web Orange HRM',() => {
         cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(1) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`)
         .should('contain','Admin').click();
         cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-        cy.url(`/admin/viewSystemUsers`);
+        cy.url(`/admin/viewSystemUsers`).should('include','/admin/viewSystemUser');
         cy.get('.orangehrm-header-container > .oxd-button').click();
-        cy.url(`/pim/addEmployee`);
+        cy.url(`/admin/saveSystemUser`).should('include','/admin/saveSystemUser');
         cy.xpath(`//h6[text()="Admin"]`).should('contain','Admin');
         cy.get(`nav > ul > li.--visited`).should('be.visible');
     });
