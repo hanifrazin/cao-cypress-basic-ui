@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import login from "../fixtures/dataLogin.json";
 
 describe('Automation UI test e2e di Orange HRM',() => {
     const firstName = faker.person.firstName();
@@ -24,7 +25,7 @@ describe('Automation UI test e2e di Orange HRM',() => {
     const xpathButtonSearch = `//form/div[@class="oxd-form-actions"]/button[@type="submit"]`;
         
     beforeEach(() => {
-        cy.login();
+        cy.login(login.validData.username,login.validData.password);
     })
 
     it("1. Menambah Karyawan Baru", () => {

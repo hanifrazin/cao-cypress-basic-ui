@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import login from "../fixtures/dataLogin.json";
 
 describe('Test PIM Feature untuk web Orange HRM',() => {
     const firstName = faker.person.firstName();
@@ -7,7 +8,7 @@ describe('Test PIM Feature untuk web Orange HRM',() => {
     const empId = faker.number.int({min:10001,max:99999});
 
     beforeEach(() => {
-        cy.login();
+        cy.login(login.validData.username,login.validData.password);
         cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(2) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).should('contain','PIM').click();
         cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
         cy.url(`/pim/viewEmployeeList`).should('include','/pim/viewEmployeeList');

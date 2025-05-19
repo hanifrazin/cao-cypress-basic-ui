@@ -24,21 +24,21 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add('login', () => {
+Cypress.Commands.add('login', (username,password) => {
     cy.visit("/auth/login");
-    cy.xpath(`//input[@name='username']`).click().clear().type("Admin");
-    cy.xpath(`//input[@name='password']`).click().clear().type("admin123");
+    cy.xpath(`//input[@name='username']`).click().clear().type(username);
+    cy.xpath(`//input[@name='password']`).click().clear().type(password);
     cy.xpath(`//button[@type='submit']`).click();
-    cy.url(`/dashboard/index`);
+    cy.url(`/dashboard/index`).should('include','/dashboard/index');
     // cy.xpath(`//a[@class="oxd-main-menu-item active"]/span[text()="Dashboard"]`).should('be.visible').and('contain','Dashboard')
 });
 
 Cypress.Commands.add('TambahKaryawanBaru', (firstName,middleName,lastName,empId) => {
     cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(2) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).should('contain','PIM').click();
     cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-    cy.url(`/pim/viewEmployeeList`);
+    cy.url(`/pim/viewEmployeeList`).should('include','/pim/viewEmployeeList');
     cy.get('.orangehrm-header-container > .oxd-button').click();
-    cy.url(`/pim/addEmployee`);
+    cy.url(`/pim/addEmployee`).should('include','/pim/addEmployee');
     // cy.xpath(`//h6[text()="PIM"]`).should('contain','PIM');
     cy.get(`nav > ul > li.--visited`).should('be.visible');
 

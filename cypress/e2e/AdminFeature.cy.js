@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import login from "../fixtures/dataLogin.json";
 
 describe('Test Admin Feature untuk web Orange HRM',() => {
     const firstName = faker.person.firstName();
@@ -24,7 +25,7 @@ describe('Test Admin Feature untuk web Orange HRM',() => {
     const xpathButtonSearch = `//form/div[@class="oxd-form-actions"]/button[@type="submit"]`;
 
     beforeEach(() => {
-        cy.login();
+        cy.login(login.validData.username,login.validData.password);
         const empId = faker.number.int({min:10001,max:99999});
         cy.TambahKaryawanBaru(firstName,middleName,lastName,empId);
         cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(1) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`)
