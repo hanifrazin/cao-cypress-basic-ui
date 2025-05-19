@@ -12,6 +12,7 @@ describe('Automation UI test e2e di Orange HRM',() => {
     const password = `${firstName}@@12345`;
     const role = 'Admin';
     const status = 'Enabled';
+    let karyawan;
 
     const xpathUsernameAddUsr = `//div[@class='oxd-form-row']//div[@class='oxd-grid-2 orangehrm-full-width-grid']//div[@class='oxd-grid-item oxd-grid-item--gutters']//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']`;
     const xpathPasswordAddUsr = `//div[@class='oxd-grid-item oxd-grid-item--gutters user-password-cell']//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@type='password']`;
@@ -24,86 +25,137 @@ describe('Automation UI test e2e di Orange HRM',() => {
     const xpathStatusSearch = `//div[@class="oxd-form-row"]/div/div[4]/div/div[2]/div/div/div[2]`;
     const xpathButtonSearch = `//form/div[@class="oxd-form-actions"]/button[@type="submit"]`;
         
-    beforeEach(() => {
-        cy.login(login.validData.username,login.validData.password);
-    })
-
-    it("1. Menambah Karyawan Baru", () => {
-        // Tambah Karyawan di menu PIM
-        cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(2) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).click();
-        cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-        cy.url(`/pim/viewEmployeeList`).should('include','/pim/viewEmployeeList');
-        cy.get('.orangehrm-header-container > .oxd-button').click();
-        cy.url(`/pim/addEmployee`).should('include','/pim/addEmployee');
-        cy.get(`nav > ul > li.--visited`).should('be.visible');
-        cy.xpath(`//input[@name="firstName"]`).click().clear().type(firstName);
-        cy.xpath(`//input[@name="middleName"]`).click().clear().type(middleName);
-        cy.xpath(`//input[@name="lastName"]`).click().clear().type(lastName);
-        cy.xpath(`//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']`)
-            .click().clear().type(empId);
-        cy.get('.oxd-button--secondary').click();
-        cy.get('.orangehrm-edit-employee-name > .oxd-text').should('contain',`${firstName} ${lastName}`)
-
-        // Buat Akun untuk Karyawan di menu Admin
-        cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(1) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).click();
-        cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-        cy.url(`/admin/viewSystemUsers`).should('include','/admin/viewSystemUsers');
-        cy.get('.orangehrm-header-container > .oxd-button').click();
-        cy.url(`/admin/saveSystemUser`).should('include','/admin/saveSystemUser');
-        cy.get(`nav > ul > li.--visited`).should('be.visible');
-
-        cy.get(`:nth-child(1) > .oxd-input-group > :nth-child(2) > .oxd-select-wrapper > .oxd-select-text > .oxd-select-text--after > .oxd-icon`)
-            .click();
-        cy.get('.oxd-select-dropdown').contains(role).click();
-        cy.get(':nth-child(3) > .oxd-input-group > :nth-child(2) > .oxd-select-wrapper > .oxd-select-text').click();
-        cy.get('.oxd-select-dropdown').contains(status).click();
-        cy.xpath(xpathPasswordAddUsr).click().clear().type(password);
-        cy.get(`.oxd-autocomplete-text-input--active > input`).click().clear().type(fullName);
-        cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
-        cy.xpath(xpathUsernameAddUsr).click().clear().type(username);
-        cy.wait(1000)
-        cy.xpath(xpathConfPasswordAddUsr).click().clear().type(password);
-        cy.xpath(xpathSaveButtonAddUsr).click();
-        cy.url(`/admin/viewSystemUsers`);
-        cy.xpath(xpathUsrSearch).click().clear().type(username);
-        cy.xpath(xpathRoleSearch).click();
-        cy.get('.oxd-select-dropdown').contains(role).click();
-        cy.xpath(xpathEmpNameSearch).click().clear().type(fullName);
-        cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
-        cy.xpath(xpathStatusSearch).click();
-        cy.get('.oxd-select-dropdown').contains(status).click();
-        cy.xpath(xpathButtonSearch).click();
-        cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
-            .first()
-            .within(() => {
-                // Cek kolom Username (kolom ke-2)
-                cy.get('.oxd-table-cell.oxd-padding-cell')
-                .eq(1)
-                .should('contain.text', username);
-
-                // Cek kolom User Role (kolom ke-3)
-                cy.get('.oxd-table-cell.oxd-padding-cell')
-                .eq(2)
-                .should('contain.text', role);
-
-                // Cek kolom Employee Name (kolom ke-4)
-                cy.get('.oxd-table-cell.oxd-padding-cell')
-                .eq(3)
-                .should('contain.text', `${firstName} ${lastName}`);
-
-                // Cek kolom Status (kolom ke-5)
-                cy.get('.oxd-table-cell.oxd-padding-cell')
-                .eq(4)
-                .should('contain.text', status);
+    context('E2E Tambah Karyawan dan Jatah Cuti untuk karyawan baru',() => {
+        beforeEach(() => {
+            cy.login(login.validData.username,login.validData.password);
+            cy.fixture("dataKaryawan").then((data) => {
+                karyawan = data;
+        
+                expect(karyawan).to.be.not.undefined;
+                expect(karyawan).to.be.exist;
             });
+        });
+
+        it("1. Menambah Karyawan Baru", () => {
+            // Tambah Karyawan di menu PIM
+            cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(2) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).click();
+            cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
+            cy.url(`/pim/viewEmployeeList`).should('include','/pim/viewEmployeeList');
+            cy.get('.orangehrm-header-container > .oxd-button').click();
+            cy.url(`/pim/addEmployee`).should('include','/pim/addEmployee');
+            cy.get(`nav > ul > li.--visited`).should('be.visible');
+            cy.xpath(`//input[@name="firstName"]`).click().clear().type(firstName);
+            cy.xpath(`//input[@name="middleName"]`).click().clear().type(middleName);
+            cy.xpath(`//input[@name="lastName"]`).click().clear().type(lastName);
+            cy.xpath(`//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']`)
+                .click().clear().type(empId);
+            cy.get('.oxd-button--secondary').click();
+            cy.get('.orangehrm-edit-employee-name > .oxd-text').should('contain',`${firstName} ${lastName}`)
+
+            // Buat Akun untuk Karyawan di menu Admin
+            cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(1) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).click();
+            cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
+            cy.url(`/admin/viewSystemUsers`).should('include','/admin/viewSystemUsers');
+            cy.get('.orangehrm-header-container > .oxd-button').click();
+            cy.url(`/admin/saveSystemUser`).should('include','/admin/saveSystemUser');
+            cy.get(`nav > ul > li.--visited`).should('be.visible');
+
+            cy.get(`:nth-child(1) > .oxd-input-group > :nth-child(2) > .oxd-select-wrapper > .oxd-select-text > .oxd-select-text--after > .oxd-icon`)
+                .click();
+            cy.get('.oxd-select-dropdown').contains(role).click();
+            cy.get(':nth-child(3) > .oxd-input-group > :nth-child(2) > .oxd-select-wrapper > .oxd-select-text').click();
+            cy.get('.oxd-select-dropdown').contains(status).click();
+            cy.xpath(xpathPasswordAddUsr).click().clear().type(password);
+            cy.get(`.oxd-autocomplete-text-input--active > input`).click().clear().type(fullName);
+            cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
+            cy.xpath(xpathUsernameAddUsr).click().clear().type(username);
+            cy.wait(1000)
+            cy.xpath(xpathConfPasswordAddUsr).click().clear().type(password);
+            cy.xpath(xpathSaveButtonAddUsr).click();
+            cy.url(`/admin/viewSystemUsers`);
+            cy.xpath(xpathUsrSearch).click().clear().type(username);
+            cy.xpath(xpathRoleSearch).click();
+            cy.get('.oxd-select-dropdown').contains(role).click();
+            cy.xpath(xpathEmpNameSearch).click().clear().type(fullName);
+            cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
+            cy.xpath(xpathStatusSearch).click();
+            cy.get('.oxd-select-dropdown').contains(status).click();
+            cy.xpath(xpathButtonSearch).click();
+            cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
+                .first()
+                .within(() => {
+                    // Cek kolom Username (kolom ke-2)
+                    cy.get('.oxd-table-cell.oxd-padding-cell')
+                    .eq(1)
+                    .should('contain.text', username);
+
+                    // Cek kolom User Role (kolom ke-3)
+                    cy.get('.oxd-table-cell.oxd-padding-cell')
+                    .eq(2)
+                    .should('contain.text', role);
+
+                    // Cek kolom Employee Name (kolom ke-4)
+                    cy.get('.oxd-table-cell.oxd-padding-cell')
+                    .eq(3)
+                    .should('contain.text', `${firstName} ${lastName}`);
+
+                    // Cek kolom Status (kolom ke-5)
+                    cy.get('.oxd-table-cell.oxd-padding-cell')
+                    .eq(4)
+                    .should('contain.text', status);
+            });
+        });
+
+        it("2. Menambahkan jatah cuti untuk karyawan baru", () => {
+            cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
+            cy.url(`/leave/viewLeaveList`).should('include','/leave/viewLeaveList');
+            cy.get(`nav > ul > li:nth-of-type(3)`).click();
+            cy.xpath(`//ul[@class="oxd-dropdown-menu"]/li[1]`).click();
+            cy.url(`/leave/addLeaveEntitlement`).should('include','/leave/addLeaveEntitlement');
+            cy.xpath(`//input[@type="radio"]`).check("0");
+            cy.get(`.oxd-autocomplete-wrapper > .oxd-autocomplete-text-input > input`).click().clear().type(fullName)
+            cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
+            cy.xpath(`//form/div[3]/div/div[1]/div/div[2]/div[@class="oxd-select-wrapper"]/div/div[2]`).click();
+            cy.get('.oxd-select-dropdown').contains(`${karyawan.izinCuti.leaveType}`).click();
+            // cy.xpath(`//form/div[3]/div/div[2]/div/div[2]/div[@class="oxd-select-wrapper"]/div/div[1]`).should('include',`${karyawan.izinCuti.validFrom}`);
+            // cy.xpath(`//form/div[3]/div/div[2]/div/div[2]/div[@class="oxd-select-wrapper"]/div/div[2]`).click();
+            // cy.get('.oxd-select-dropdown').contains(`${karyawan.izinCuti.validFrom}`).click();
+            cy.xpath(`//form/div[3]/div/div[3]/div/div[2]/input`).click().clear().type(karyawan.izinCuti.days);
+            cy.xpath(`//button[@type='submit']`).click();
+            cy.get('.oxd-sheet').should('be.visible');
+            cy.get('.orangehrm-modal-footer > .oxd-button--secondary').click();
+
+            cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
+                .first()
+                .within(() => {
+                    // Cek kolom Username (kolom ke-2)
+                    cy.get('.oxd-table-cell.oxd-padding-cell')
+                    .eq(1)
+                    .should('contain.text', karyawan.izinCuti.leaveType);
+                    // Cek kolom User Role (kolom ke-6)
+                    cy.get('.oxd-table-cell.oxd-padding-cell')
+                    .eq(5)
+                    .should('contain.text', karyawan.izinCuti.days);
+            });
+        });
     });
 
-    it("2. Menambahkan jatah cuti untuk karyawan baru", () => {
-        cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
-        cy.url(`/leave/viewLeaveList`).should('include','/leave/viewLeaveList');
-        cy.get(`nav > ul > li:nth-of-type(3)`).click();
-        cy.xpath(`//ul[@class="oxd-dropdown-menu"]/li[1]`).click();
-        cy.url(`/leave/addLeaveEntitlement`).should('include','/leave/addLeaveEntitlement');
-    })
+    context('E2E Flow Request Cuti untuk Karyawan Baru',() => {
+        it('Karyawan Request Cuti', () => {
+            cy.login(username,password);
+            cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
+            cy.url(`/leave/viewLeaveList`).should('include','/leave/viewLeaveList');
+            cy.get(`nav > ul > li:nth-of-type(1)`).click();
+            cy.url(`/leave/applyLeave`).should('include','/leave/applyLeave');
 
-})
+        });
+
+        it('HR approve cuti', () => {
+            cy.login(login.validData.username,login.validData.password);
+        });
+
+        it('Karyawan approve cuti', () => {
+            cy.login(username,password);
+        });
+    });
+});
