@@ -48,7 +48,7 @@ describe('Test Admin Feature untuk web Orange HRM',() => {
         cy.get(`.oxd-autocomplete-text-input--active > input`).click().clear().type(fullName);
         cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
         cy.xpath(xpathUsernameAddUsr).click().clear().type(username);
-        cy.wait(1000)
+        cy.wait(3000);
         cy.xpath(xpathConfPasswordAddUsr).click().clear().type(password);
         cy.xpath(xpathSaveButtonAddUsr).click();
         cy.url(`/admin/viewSystemUsers`);

@@ -1,161 +1,103 @@
 import { faker } from "@faker-js/faker";
 import login from "../fixtures/dataLogin.json";
+import karyawan from "../fixtures/dataKaryawan.json";
 
-describe('Automation UI test e2e di Orange HRM',() => {
+describe('Automation UI E2E Flow Request Cuti untuk Karyawan Baru',() => {
     const firstName = faker.person.firstName();
     const middleName = faker.person.middleName();
     const lastName = faker.person.lastName();
     const fullName = `${firstName} ${middleName} ${lastName}`;
-    const empId = faker.number.int({min:10001,max:99999});
+    let empId;
     const numbUsr = faker.number.int({min:100,max:999});
-    const username = firstName.length < 5 ? `${firstName.toLowerCase()}_${numbUsr}` : firstName.toLowerCase();
+    const username = firstName.length < 5 ? `${firstName}_${numbUsr}` : firstName;
     const password = `${firstName}@@12345`;
-    const role = 'Admin';
+    const role = 'ESS';
     const status = 'Enabled';
-    let karyawan;
-
-    const xpathUsernameAddUsr = `//div[@class='oxd-form-row']//div[@class='oxd-grid-2 orangehrm-full-width-grid']//div[@class='oxd-grid-item oxd-grid-item--gutters']//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']`;
-    const xpathPasswordAddUsr = `//div[@class='oxd-grid-item oxd-grid-item--gutters user-password-cell']//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@type='password']`;
-    const xpathConfPasswordAddUsr = `//div[@class="oxd-form-row user-password-row"]/div/div[2]/div/div[2]/input[@type='password']`;
-    const xpathSaveButtonAddUsr = `//div[@class="oxd-form-actions"]/button[@type="submit"]`;
-
-    const xpathUsrSearch = `//div[@class="oxd-form-row"]/div/div[1]/div/div[2]/input`;
-    const xpathRoleSearch = `//div[@class="oxd-form-row"]/div/div[2]/div/div[2]/div/div/div[2]`;
-    const xpathEmpNameSearch = `//div[@class="oxd-form-row"]/div/div[3]/div/div[2]/div/div/input`;
-    const xpathStatusSearch = `//div[@class="oxd-form-row"]/div/div[4]/div/div[2]/div/div/div[2]`;
-    const xpathButtonSearch = `//form/div[@class="oxd-form-actions"]/button[@type="submit"]`;
         
-    context('E2E Tambah Karyawan dan Jatah Cuti untuk karyawan baru',() => {
-        beforeEach(() => {
-            cy.login(login.validData.username,login.validData.password);
-            cy.fixture("dataKaryawan").then((data) => {
-                karyawan = data;
-        
-                expect(karyawan).to.be.not.undefined;
-                expect(karyawan).to.be.exist;
-            });
-        });
+    before(() => {
+        // Flow 1 dan 2 - Menambah Karyawan Baru dan Tambah Kuota Cuti 
+        empId = faker.number.int({min:10001,max:99999});
+        cy.login(login.validData.username, login.validData.password);
+        cy.TambahKaryawanBaru(firstName, middleName, lastName, empId);
+        cy.TambahAkunKaryawan(fullName,role,status,username,password,firstName,lastName);
+        cy.TambahJatahCuti(fullName,karyawan.izinCuti.leaveType,karyawan.izinCuti.days);
+        cy.task('log',`\n\nUsername : ${username}\nPassword : ${password}\nFull Name : ${fullName}\n\n`);
+        cy.logout();
+    })
 
-        it("1. Menambah Karyawan Baru", () => {
-            // Tambah Karyawan di menu PIM
-            cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(2) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).click();
-            cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-            cy.url(`/pim/viewEmployeeList`).should('include','/pim/viewEmployeeList');
-            cy.get('.orangehrm-header-container > .oxd-button').click();
-            cy.url(`/pim/addEmployee`).should('include','/pim/addEmployee');
-            cy.get(`nav > ul > li.--visited`).should('be.visible');
-            cy.xpath(`//input[@name="firstName"]`).click().clear().type(firstName);
-            cy.xpath(`//input[@name="middleName"]`).click().clear().type(middleName);
-            cy.xpath(`//input[@name="lastName"]`).click().clear().type(lastName);
-            cy.xpath(`//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']`)
-                .click().clear().type(empId);
-            cy.get('.oxd-button--secondary').click();
-            cy.get('.orangehrm-edit-employee-name > .oxd-text').should('contain',`${firstName} ${lastName}`)
-
-            // Buat Akun untuk Karyawan di menu Admin
-            cy.get(`.oxd-sidepanel-body > ul > li:nth-of-type(1) > a.oxd-main-menu-item > span.oxd-main-menu-item--name`).click();
-            cy.xpath(`//a[@class='oxd-main-menu-item active']`).should('be.visible');
-            cy.url(`/admin/viewSystemUsers`).should('include','/admin/viewSystemUsers');
-            cy.get('.orangehrm-header-container > .oxd-button').click();
-            cy.url(`/admin/saveSystemUser`).should('include','/admin/saveSystemUser');
-            cy.get(`nav > ul > li.--visited`).should('be.visible');
-
-            cy.get(`:nth-child(1) > .oxd-input-group > :nth-child(2) > .oxd-select-wrapper > .oxd-select-text > .oxd-select-text--after > .oxd-icon`)
-                .click();
-            cy.get('.oxd-select-dropdown').contains(role).click();
-            cy.get(':nth-child(3) > .oxd-input-group > :nth-child(2) > .oxd-select-wrapper > .oxd-select-text').click();
-            cy.get('.oxd-select-dropdown').contains(status).click();
-            cy.xpath(xpathPasswordAddUsr).click().clear().type(password);
-            cy.get(`.oxd-autocomplete-text-input--active > input`).click().clear().type(fullName);
-            cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
-            cy.xpath(xpathUsernameAddUsr).click().clear().type(username);
-            cy.wait(1000)
-            cy.xpath(xpathConfPasswordAddUsr).click().clear().type(password);
-            cy.xpath(xpathSaveButtonAddUsr).click();
-            cy.url(`/admin/viewSystemUsers`);
-            cy.xpath(xpathUsrSearch).click().clear().type(username);
-            cy.xpath(xpathRoleSearch).click();
-            cy.get('.oxd-select-dropdown').contains(role).click();
-            cy.xpath(xpathEmpNameSearch).click().clear().type(fullName);
-            cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
-            cy.xpath(xpathStatusSearch).click();
-            cy.get('.oxd-select-dropdown').contains(status).click();
-            cy.xpath(xpathButtonSearch).click();
-            cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
-                .first()
-                .within(() => {
-                    // Cek kolom Username (kolom ke-2)
-                    cy.get('.oxd-table-cell.oxd-padding-cell')
-                    .eq(1)
-                    .should('contain.text', username);
-
-                    // Cek kolom User Role (kolom ke-3)
-                    cy.get('.oxd-table-cell.oxd-padding-cell')
-                    .eq(2)
-                    .should('contain.text', role);
-
-                    // Cek kolom Employee Name (kolom ke-4)
-                    cy.get('.oxd-table-cell.oxd-padding-cell')
-                    .eq(3)
-                    .should('contain.text', `${firstName} ${lastName}`);
-
-                    // Cek kolom Status (kolom ke-5)
-                    cy.get('.oxd-table-cell.oxd-padding-cell')
-                    .eq(4)
-                    .should('contain.text', status);
-            });
-        });
-
-        it("2. Menambahkan jatah cuti untuk karyawan baru", () => {
-            cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
-            cy.url(`/leave/viewLeaveList`).should('include','/leave/viewLeaveList');
-            cy.get(`nav > ul > li:nth-of-type(3)`).click();
-            cy.xpath(`//ul[@class="oxd-dropdown-menu"]/li[1]`).click();
-            cy.url(`/leave/addLeaveEntitlement`).should('include','/leave/addLeaveEntitlement');
-            cy.xpath(`//input[@type="radio"]`).check("0");
-            cy.get(`.oxd-autocomplete-wrapper > .oxd-autocomplete-text-input > input`).click().clear().type(fullName)
-            cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
-            cy.xpath(`//form/div[3]/div/div[1]/div/div[2]/div[@class="oxd-select-wrapper"]/div/div[2]`).click();
-            cy.get('.oxd-select-dropdown').contains(`${karyawan.izinCuti.leaveType}`).click();
-            // cy.xpath(`//form/div[3]/div/div[2]/div/div[2]/div[@class="oxd-select-wrapper"]/div/div[1]`).should('include',`${karyawan.izinCuti.validFrom}`);
-            // cy.xpath(`//form/div[3]/div/div[2]/div/div[2]/div[@class="oxd-select-wrapper"]/div/div[2]`).click();
-            // cy.get('.oxd-select-dropdown').contains(`${karyawan.izinCuti.validFrom}`).click();
-            cy.xpath(`//form/div[3]/div/div[3]/div/div[2]/input`).click().clear().type(karyawan.izinCuti.days);
-            cy.xpath(`//button[@type='submit']`).click();
-            cy.get('.oxd-sheet').should('be.visible');
-            cy.get('.orangehrm-modal-footer > .oxd-button--secondary').click();
-
-            cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
-                .first()
-                .within(() => {
-                    // Cek kolom Username (kolom ke-2)
-                    cy.get('.oxd-table-cell.oxd-padding-cell')
-                    .eq(1)
-                    .should('contain.text', karyawan.izinCuti.leaveType);
-                    // Cek kolom User Role (kolom ke-6)
-                    cy.get('.oxd-table-cell.oxd-padding-cell')
-                    .eq(5)
-                    .should('contain.text', karyawan.izinCuti.days);
-            });
-        });
+    it('Request Cuti oleh Karyawan Baru', () => {
+        cy.login(username,password);
+        cy.xpath(`//p[@class="oxd-userdropdown-name"]`).should('have.text',`${firstName} ${lastName}`);
+        cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
+        cy.url(`/leave/viewMyLeaveList`).should('include','/leave/viewMyLeaveList');
+        cy.get(`nav > ul > li:nth-of-type(1)`).click();
+        cy.url(`/leave/applyLeave`).should('include','/leave/applyLeave');
+        cy.xpath(`//form/div/div/div/div/div[2]/div/div/div[2]`).click();
+        cy.wait(3000)
+        cy.contains(`${karyawan.izinCuti.leaveType}`).click();
+        cy.xpath(`//form/div/div/div/div/div[2]/div/div/div[1]`).contains(`${karyawan.izinCuti.leaveType}`);
+        cy.contains(`${karyawan.izinCuti.days}.00 Day(s)`).should('be.visible');
+        cy.xpath(`//form/div[2]/div/div[1]/div/div[2]/div/div/input`).click();
+        cy.wait(3000);
+        cy.contains(21).click();
+        cy.xpath(`//form/div[2]/div/div[2]/div/div[2]/div/div/input`).click();
+        cy.wait(3000);
+        cy.contains(26).click();
+        cy.xpath(`//form/div[3]/div/div/div/div[2]/div/div/div[2]`).click();
+        cy.contains('All Days').click();
+        cy.xpath(`//form/div[3]/div/div[2]/div/div[2]/div/div/div[2]`).click();
+        cy.contains(`Half Day - Morning`).click();
+        cy.xpath(`//textarea[@class="oxd-textarea oxd-textarea--active oxd-textarea--resize-vertical"]`).click().clear().type('Saya mau healing sejenak');
+        cy.xpath(`//button[@type="submit"]`).click();
+        cy.wait(3000);
+        cy.get(`nav > ul > li:nth-of-type(2)`).click();
+        cy.url(`/leave/viewMyLeaveList`).should('include','/leave/viewMyLeaveList');
+        cy.get(`.orangehrm-container`).scrollIntoView();
+        cy.logout();
     });
 
-    context('E2E Flow Request Cuti untuk Karyawan Baru',() => {
-        it('Karyawan Request Cuti', () => {
-            cy.login(username,password);
-            cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
-            cy.url(`/leave/viewLeaveList`).should('include','/leave/viewLeaveList');
-            cy.get(`nav > ul > li:nth-of-type(1)`).click();
-            cy.url(`/leave/applyLeave`).should('include','/leave/applyLeave');
-
+    it('HR Approve Cuti', () => {
+        cy.login(login.validData.username,login.validData.password);
+        cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
+        cy.url(`/leave/viewLeaveList`).should('include','/leave/viewLeaveList');
+        cy.get(`.orangehrm-container`).scrollIntoView();
+        cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
+            .first()
+            .find('input[type="checkbox"]')
+            .check({ force: true });
+        
+        cy.xpath(`//button[@class="oxd-button oxd-button--medium oxd-button--label-success"]`).click();
+        cy.xpath(`//div[@class="oxd-dialog-container-default--inner"]`).should('be.visible');
+        cy.xpath(`//div[@class="orangehrm-modal-footer"]/button[2]`).click();
+        cy.wait(3000)
+        cy.logout();
+    });
+        
+    it("Karyawan login expect cuti di approved", () => {
+        cy.login(username,password);
+        cy.xpath(`//p[@class="oxd-userdropdown-name"]`).should('have.text',`${firstName} ${lastName}`);
+        cy.xpath(`//a[@href="/web/index.php/leave/viewLeaveModule"]`).click();
+        cy.url(`/leave/viewMyLeaveList`).should('include','/leave/viewMyLeaveList');
+        cy.get(`.orangehrm-container`).scrollIntoView();
+        cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
+            .first()
+            .find('input[type="checkbox"]')
+            .check({ force: true });
+        cy.xpath(`//div/div/li/button[@type="button"][@class="oxd-icon-button"]`).click();
+        cy.xpath(`//ul[@class="oxd-dropdown-menu"]`).contains('View Leave Details').click();
+        cy.xpath(`//p[@class="oxd-text oxd-text--p orangehrm-request-details-text"]`).contains(`${fullName}`);
+        cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
+            .first()
+            .within(() => {
+                // Cek kolom Username (kolom ke-2)
+                cy.get('.oxd-table-cell.oxd-padding-cell')
+                .eq(1)
+                .should('contain.text', karyawan.izinCuti.leaveType);
+                // Cek kolom User Role (kolom ke-6)
+                cy.get('.oxd-table-cell.oxd-padding-cell')
+                .eq(4)
+                .should('contain.text', 'Taken');
         });
-
-        it('HR approve cuti', () => {
-            cy.login(login.validData.username,login.validData.password);
-        });
-
-        it('Karyawan approve cuti', () => {
-            cy.login(username,password);
-        });
+        cy.logout();
     });
 });
