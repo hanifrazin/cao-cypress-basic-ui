@@ -39,7 +39,9 @@ Cypress.Commands.add('login', (username, password) => {
     cy.visit("/auth/login");
     cy.xpath(`//input[@name='username']`).click({force:true}).type(username);
     cy.xpath(`//input[@name='password']`).click({force:true}).type(password);
+    cy.screenshot();
     cy.xpath(`//button[@type='submit']`).click({force:true});
+    cy.wait(3000);
 });
 
 Cypress.Commands.add('TambahKaryawanBaru', (firstName, middleName, lastName, empId) => {
@@ -56,8 +58,10 @@ Cypress.Commands.add('TambahKaryawanBaru', (firstName, middleName, lastName, emp
     cy.xpath(`//input[@name="lastName"]`).click().clear().type(lastName);
     cy.xpath(`//div[@class='oxd-input-group oxd-input-field-bottom-space']//div//input[@class='oxd-input oxd-input--active']`)
         .click().clear().type(empId);
+    cy.screenshot();
     cy.get('.oxd-button--secondary').click();
     cy.get('.orangehrm-edit-employee-name > .oxd-text').should('contain',`${firstName} ${lastName}`)
+    cy.screenshot();
 });
 
 Cypress.Commands.add('TambahAkunKaryawan',(fullName,role,status,username,password,firstName,lastName)=>{
@@ -78,9 +82,12 @@ Cypress.Commands.add('TambahAkunKaryawan',(fullName,role,status,username,passwor
     cy.get(`.oxd-autocomplete-text-input--active > input`).click().clear().type(fullName);
     cy.get('.oxd-autocomplete-dropdown').contains(fullName).click();
     cy.xpath(xpathUsernameAddUsr).click().clear().type(username);
-    cy.wait(3000)
+    cy.wait(3000);
     cy.xpath(xpathConfPasswordAddUsr).click().clear().type(password);
+    cy.screenshot();
     cy.xpath(xpathSaveButtonAddUsr).click();
+    // cy.wait(3000);
+    // cy.screenshot();
     cy.url(`/admin/viewSystemUsers`);
     cy.xpath(xpathUsrSearch).click().clear().type(username);
     cy.xpath(xpathRoleSearch).click();
@@ -113,6 +120,8 @@ Cypress.Commands.add('TambahAkunKaryawan',(fullName,role,status,username,passwor
             .eq(4)
             .should('contain.text', status);
     });
+    cy.wait(3000);
+    cy.screenshot();
 });
 
 Cypress.Commands.add('TambahJatahCuti', (fullName, leaveType, days) => {
@@ -131,8 +140,11 @@ Cypress.Commands.add('TambahJatahCuti', (fullName, leaveType, days) => {
     // cy.xpath(`//form/div[3]/div/div[2]/div/div[2]/div[@class="oxd-select-wrapper"]/div/div[2]`).click();
     // cy.get('.oxd-select-dropdown').contains(`${karyawan.izinCuti.validFrom}`).click();
     cy.xpath(`//form/div[3]/div/div[3]/div/div[2]/input`).click().clear().type(days);
+    cy.screenshot();
     cy.xpath(`//button[@type='submit']`).click();
     cy.get('.oxd-sheet').should('be.visible');
+    cy.wait(3000);
+    cy.screenshot();
     cy.get('.orangehrm-modal-footer > .oxd-button--secondary').click();
 
     cy.get('.orangehrm-container > .oxd-table > .oxd-table-body > .oxd-table-card > .oxd-table-row.oxd-table-row--with-border')
@@ -147,6 +159,8 @@ Cypress.Commands.add('TambahJatahCuti', (fullName, leaveType, days) => {
             .eq(5)
             .should('contain.text', days);
     });
+    cy.wait(3000);
+    cy.screenshot();
 });
 
 Cypress.Commands.add('logout',() => {

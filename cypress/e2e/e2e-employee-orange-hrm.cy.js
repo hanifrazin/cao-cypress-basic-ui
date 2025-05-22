@@ -48,11 +48,14 @@ describe('Automation UI E2E Flow Request Cuti untuk Karyawan Baru',() => {
         cy.xpath(`//form/div[3]/div/div[2]/div/div[2]/div/div/div[2]`).click();
         cy.contains(`Half Day - Morning`).click();
         cy.xpath(`//textarea[@class="oxd-textarea oxd-textarea--active oxd-textarea--resize-vertical"]`).click().clear().type('Saya mau healing sejenak');
+        cy.screenshot();
         cy.xpath(`//button[@type="submit"]`).click();
         cy.wait(3000);
         cy.get(`nav > ul > li:nth-of-type(2)`).click();
         cy.url(`/leave/viewMyLeaveList`).should('include','/leave/viewMyLeaveList');
         cy.get(`.orangehrm-container`).scrollIntoView();
+        cy.wait(3000)
+        cy.screenshot();
         cy.logout();
     });
 
@@ -65,11 +68,13 @@ describe('Automation UI E2E Flow Request Cuti untuk Karyawan Baru',() => {
             .first()
             .find('input[type="checkbox"]')
             .check({ force: true });
-        
+        cy.screenshot();
         cy.xpath(`//button[@class="oxd-button oxd-button--medium oxd-button--label-success"]`).click();
         cy.xpath(`//div[@class="oxd-dialog-container-default--inner"]`).should('be.visible');
+        cy.screenshot();
         cy.xpath(`//div[@class="orangehrm-modal-footer"]/button[2]`).click();
-        cy.wait(3000)
+        cy.wait(3000);
+        cy.screenshot();
         cy.logout();
     });
         
@@ -83,6 +88,7 @@ describe('Automation UI E2E Flow Request Cuti untuk Karyawan Baru',() => {
             .first()
             .find('input[type="checkbox"]')
             .check({ force: true });
+        cy.screenshot();
         cy.xpath(`//div/div/li/button[@type="button"][@class="oxd-icon-button"]`).click();
         cy.xpath(`//ul[@class="oxd-dropdown-menu"]`).contains('View Leave Details').click();
         cy.xpath(`//p[@class="oxd-text oxd-text--p orangehrm-request-details-text"]`).contains(`${fullName}`);
@@ -98,6 +104,8 @@ describe('Automation UI E2E Flow Request Cuti untuk Karyawan Baru',() => {
                 .eq(4)
                 .should('contain.text', 'Taken');
         });
+        cy.wait(3000);
+        cy.screenshot();
         cy.logout();
     });
 });
